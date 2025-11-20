@@ -29,57 +29,140 @@ For example, a **sequence detector** that detects `"1011"`:
 
 ## Verilog Code
 ```
-// Mealy Sequence Detector for sequence "11011"
-module mealy_seq_detector_11011 (
-    input clk,
-    input reset,
-    input x,
-    output reg z
-);
-
-    // State encoding
-    parameter S0 = 3'b000,
-              S1 = 3'b001,
-              S2 = 3'b010,
-              S3 = 3'b011,
-              S4 = 3'b100,
-              S5 = 3'b101;
-
-    reg [2:0] state, next_state;
-
-
-
-
-    end
+module mealysequence(clk,reset,din,dout);
+ input clk;
+ input reset;
+ input din;
+ output reg dout;
+ 
+ parameter S0 = 3'b000,
+           S1 = 3'b001,
+           S2 = 3'b010,
+           S3 = 3'b011,
+           S4 = 3'b100;
+           
+ reg [2:0] current_state, next_state;
+ 
+ 
+ always @(posedge clk or posedge reset) 
+ begin
+     if (reset) 
+         current_state <= S0;
+     else 
+         current_state <= next_state;
+ end
+ 
+ always @(*) 
+ begin
+     case (current_state)
+         S0: begin
+                 if (din) 
+                 begin
+                     next_state = S1;
+                     dout = 1'b0;
+                 end
+                 else 
+                 begin
+                     next_state = S0;
+                     dout = 1'b0;
+                 end
+             end
+         S1: begin
+                 if (din) 
+                 begin
+                     next_state = S2;
+                     dout = 1'b0;
+                 end
+                 else 
+                 begin
+                     next_state = S0;
+                     dout = 1'b0;
+                 end
+             end
+         S2: begin
+                 if (din) 
+                 begin
+                     next_state = S2;  
+                     dout = 1'b0;
+                 end
+                 else 
+                 begin
+                     next_state = S3;
+                     dout = 1'b0;
+                 end
+             end
+         S3: begin
+                 if (din) 
+                 begin
+                     next_state = S4;
+                     dout = 1'b0;
+                 end
+                 else 
+                 begin
+                     next_state = S0;
+                     dout = 1'b0;
+                 end
+             end
+         S4: begin
+                 if (din) 
+                 begin
+                     next_state = S2; 
+                     dout = 1'b1;      
+                 end
+                 else 
+                 begin
+                     next_state = S0;
+                     dout = 1'b0;
+                 end
+             end
+         default: begin
+                     next_state = S0;
+                     dout = 1'b0;
+                 end
+     endcase
+ end
 endmodule
+
+
+
+
 ```
 ## Testbench
 ```
-module tb_mealy_seq_detector_11011;
-    reg clk, reset, x;
-    wire z;
-
-    mealy_seq_detector_11011 uut (
-        .clk(clk),
-        .reset(reset),
-        .x(x),
-        .z(z)
-    );
-
-    // Clock generation
-    initial begin
-        clk = 0;
-        forever #5 clk = ~clk;
-    end
-
-    // Stimulus
-    initial begin
-        reset = 1; x = 0;
-
+`timescale 1ns/1ps
+module tb_mealy;
+ reg clk, reset, din;
+ wire dout;
+ 
+ mealysequence uut (clk, reset, din, dout);
+ 
+ initial 
+ begin
+     clk = 0;
+     forever #5 clk = ~clk; 
+ end
+ 
+ initial 
+ begin
+     
+     reset = 1; din = 0;
+     #10 reset = 0;
+     
+     
+     #10 din = 1; 
+     #10 din = 1;  
+     #10 din = 0; 
+     #10 din = 1; 
+     
+     
+     
+     #50 $finish;
+ end
 endmodule
 ```
 ## Simulation Output 
 ---
+<img width="1666" height="974" alt="image" src="https://github.com/user-attachments/assets/5258f5cf-9574-421d-b4d8-b7396814496a" />
 
 Paste the output here
 
